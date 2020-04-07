@@ -25,6 +25,17 @@ suite('cli', () => {
       done();
     });
   });
+  test('invalid input --caret', (done) => {
+    execFile(ejslint, ['test/fixtures/invalid.ejs', '--caret'], (err, stdout, stderr) => {
+      const expectedContext = `\n<% ${']'.bgRed} %>\n   ^`;
+      assert.equal(err.code, 1, 'expected exit code of 1');
+      assert.equal(
+        stderr.trim(),
+        `Unexpected token (3:4) in test/fixtures/invalid.ejs${expectedContext}`,
+      );
+      done();
+    });
+  });
   test('--preprocessor-include option', (done) => {
     execFile(
       ejslint,

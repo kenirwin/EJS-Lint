@@ -15,6 +15,10 @@ const argv = require('yargs')
   .option('preprocessor-include', {
     describe: 'Allow old (pre-EJS v3) preprocessor-style includes',
     type: 'boolean',
+  })
+  .option('caret', {
+    describe: 'Display a caret (^) in the line below an error',
+    type: 'boolean'
   }).argv;
 const glob = require('globby').sync;
 const read = require('read-input');
@@ -23,6 +27,7 @@ const ejsLint = require('./index.js');
 const opts = {
   delimiter: argv.delimiter,
   preprocessorInclude: argv['preprocessor-include'],
+  caret: argv['caret']
 };
 read(glob(argv._))
   .then((res) => {
@@ -35,7 +40,7 @@ read(glob(argv._))
         if (file.name) {
           message += ` in ${file.name}`;
         }
-        message += `\n${errorContext(err, file)}`;
+        message += `\n${errorContext(err, file, opts)}`;
         console.error(message);
       }
     });
@@ -46,7 +51,8 @@ read(glob(argv._))
     process.exit(1);
   });
 
-function errorContext(err, file, options = { bg: 'red', caret: false } ) {
+function errorContext(err, file, options = { } ) {
+  console.log(options)
   require('colors');
   const lines = file.data.split(/\r?\n/);
   const lineText = lines[err.line - 1];
@@ -56,13 +62,13 @@ function errorContext(err, file, options = { bg: 'red', caret: false } ) {
   const caret = '^';
   const lineBreak = '\n';
   const caretLine = spaces(err.column - 1) + caret;
-  let highlight = '';
-  if (options.bg == 'red') { 
-    highlight = before + during.bgRed + after; 
-  }
-  else { 
-    highlight = lineText;
-  }
+  // let highlight = '';
+  // if (options.bg == 'red') { 
+  let highlight = before + during.bgRed + after; 
+  // }
+  // else { 
+  //  highlight = lineText;
+  // }
   if (options.caret == true) return highlight + lineBreak + caretLine;
   else return highlight;
 }
