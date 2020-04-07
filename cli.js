@@ -46,12 +46,31 @@ read(glob(argv._))
     process.exit(1);
   });
 
-function errorContext(err, file) {
+function errorContext(err, file, options = { bg: 'red', caret: false } ) {
   require('colors');
   const lines = file.data.split(/\r?\n/);
   const lineText = lines[err.line - 1];
   const before = lineText.substr(0, err.column - 1);
   const during = lineText.substr(err.column - 1, 1);
   const after = lineText.substr(err.column);
-  return before + during.bgRed + after;
+  const caret = '^';
+  const lineBreak = '\n';
+  const caretLine = spaces(err.column - 1) + caret;
+  let highlight = '';
+  if (options.bg == 'red') { 
+    highlight = before + during.bgRed + after; 
+  }
+  else { 
+    highlight = lineText;
+  }
+  if (options.caret == true) return highlight + lineBreak + caretLine;
+  else return highlight;
+}
+
+function spaces(n) {
+  let str = '';
+  for (var i=0; i<n; i++) {
+    str += ' ';
+  }
+  return str;
 }
